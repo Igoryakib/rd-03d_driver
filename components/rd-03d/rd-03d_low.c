@@ -1,9 +1,17 @@
+/**
+ * @file rd-03d_low.c
+ * @brief Implementation of the low-level hardware abstraction layer for the RD-03D radar.
+ */
 #include "rd-03d_low.h"
 
+/* --- Configuration Macros --- */
 #define RADAR_BAUD_RATE    256000
 #define UART_BUFFER_SIZE   (1024 * 2)
+
+/* --- Protocol Macros --- */
 #define HEADER_FRAME 0xAAFF0300
 #define TAIL_FRAME 0x55CC
+#define SIZE_TARGETS_DATA 28
 
 rd_low_api_status_t device_init(rd_handle_init_t *rd_handle) {
 	rd_low_api_status_t statusCode = DEVICE_STATUS_OK;
@@ -66,7 +74,7 @@ rd_low_api_status_t device_read(rd_handle_init_t *rd_handle) {
 		}
 
 		if (HEADER_FRAME == buf_header_frame && TAIL_FRAME == buf_tail_frame) {
-			for (int8_t j= 0, i = 4; i < 28; j++, i++) {
+			for (int8_t j= 0, i = 4; i < SIZE_TARGETS_DATA; j++, i++) {
 				rd_handle->data_buffer[j] = raw_buffer[i];
 			}
 			statusCode = DEVICE_STATUS_OK;
