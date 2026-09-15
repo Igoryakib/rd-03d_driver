@@ -28,6 +28,11 @@ typedef enum {
 	RD_STATUS_INVALID_PARAMETERS
 } rd_high_api_status_t;
 
+typedef enum {
+	MODE_SINGLE_TARGTE,
+	MODE_MULTI_TARGET
+} rd_high_api_mode_t;
+
 /**
  * @brief Status codes for target detection.
  */

@@ -14,6 +14,13 @@
 #include "rd-03d_high.h"
 #include <stdint.h>
 
+typedef enum {
+	CONF_ENABLE = 0,
+	CONF_END,
+	MODE_SINGLE,
+	MODE_MULTI
+} rd_handle_cmd_t;
+
 /**
  * @struct rd_handle_init_s
  * @brief Device descriptor for the RD-03D radar.
@@ -31,3 +38,11 @@ struct rd_handle_init_s{
 	gpio_num_t rx_io_num; /**< GPIO pin number for RX (receiving data from the radar) */
 	rd_high_api_status_t initialize_status; /**< Current initialization status of the radar device */
 };
+
+extern const uint8_t CMD_ENABLE_CONF[];
+
+extern const uint8_t CMD_END_CONF[];
+
+extern const uint8_t CMD_SINGL_T[];
+
+extern const uint8_t CMD_MULTI_T[];

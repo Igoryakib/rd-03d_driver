@@ -18,7 +18,8 @@ typedef enum {
 	DEVICE_STATUS_FIFO_OVERFLOW,
 	DEVICE_STATUS_RING_OVERFLOW,
 	DEVICE_STATUS_READ_ERROR,
-	DEVICE_STATUS_INVALID_PARAMETERS
+	DEVICE_STATUS_INVALID_PARAMETERS,
+	DEVICE_STATUS_CMD_ERROR,
 } rd_low_api_status_t;
 
 /**
@@ -42,3 +43,5 @@ rd_low_api_status_t device_init(rd_handle_init_t *handle_init);
  * @return rd_low_api_status_t DEVICE_STATUS_OK if bytes were successfully read, or an error code.
  */
 rd_low_api_status_t device_read(rd_handle_init_t *rd_handle);
+
+rd_low_api_status_t device_send_command(rd_handle_init_t *rd_handle, const uint8_t *command, size_t command_length, rd_handle_cmd_t type_command, size_t cmd_response_length);
