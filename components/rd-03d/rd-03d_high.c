@@ -10,6 +10,7 @@
 #include "rd_handle.h"
 #include "rd-03d_high.h"
 #include "rd-03d_low.h"
+#include <string.h>
 
 /* --- Protocol Constants --- */
 #define SIZE_TARGET_DATA 8
@@ -44,10 +45,11 @@ rd_handle_init_t* createEntity(uart_port_t uart_num, int tx_io_num,
 	return handle;
 }
 
-rd_high_api_status_t rd_init(rd_handle_init_t *rd_handle) {
+rd_high_api_status_t rd_init(rd_handle_init_t *rd_handle,
+		const rd_high_api_mode_t mode) {
 	rd_high_api_status_t statusCode = RD_STATUS_OK;
 
-	if (NULL == rd_handle) {
+	if (NULL == rd_handle || mode >= RD_MODE_MAX_INVALID) {
 		statusCode = RD_STATUS_INVALID_PARAMETERS;
 	}
 
@@ -59,6 +61,52 @@ rd_high_api_status_t rd_init(rd_handle_init_t *rd_handle) {
 
 	if (RD_STATUS_OK == statusCode) {
 		rd_handle->initialize_status = RD_STATUS_INITIALIZED;
+	}
+
+	if (RD_STATUS_OK == statusCode
+			&& RD_STATUS_INITIALIZED == rd_handle->initialize_status) {
+		switch (mode) {
+		case MODE_SINGLE_TARGET:
+			if (DEVICE_STATUS_OK
+					!= device_send_command(rd_handle, CMD_ENABLE_CONF,
+							CONF_ENABLE, 14, 18)) {
+				statusCode = RD_STATUS_CMD_ERROR;
+			}
+			if (RD_STATUS_OK == statusCode
+					&& DEVICE_STATUS_OK
+							!= device_send_command(rd_handle, CMD_SINGL_T,
+									MODE_SINGLE, 12, 14)) {
+				statusCode = RD_STATUS_CMD_ERROR;
+			}
+			if (RD_STATUS_OK == statusCode
+					&& DEVICE_STATUS_OK
+							!= device_send_command(rd_handle, CMD_END_CONF,
+									CONF_END, 12, 14)) {
+				statusCode = RD_STATUS_CMD_ERROR;
+			}
+			break;
+		case MODE_MULTI_TARGET:
+			if (DEVICE_STATUS_OK
+					!= device_send_command(rd_handle, CMD_ENABLE_CONF,
+							CONF_ENABLE, 14, 18)) {
+				statusCode = RD_STATUS_CMD_ERROR;
+			}
+			if (RD_STATUS_OK == statusCode
+					&& DEVICE_STATUS_OK
+							!= device_send_command(rd_handle, CMD_MULTI_T,
+									MODE_MULTI, 12, 14)) {
+				statusCode = RD_STATUS_CMD_ERROR;
+			}
+			if (RD_STATUS_OK == statusCode
+					&& DEVICE_STATUS_OK
+							!= device_send_command(rd_handle, CMD_END_CONF,
+									CONF_END, 12, 14)) {
+				statusCode = RD_STATUS_CMD_ERROR;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	return statusCode;
@@ -101,8 +149,9 @@ rd_high_api_status_t rd_read(rd_handle_init_t *rd_handle) {
 
 			current_frame.active_count = active_targets;
 
-			if (xQueueSend(rd_handle->data_queue, &current_frame, 0) != pdTRUE) {
-			        statusCode = RD_STATUS_READ_ERROR;
+			if (xQueueSend(rd_handle->data_queue, &current_frame, 0)
+					!= pdTRUE) {
+				statusCode = RD_STATUS_READ_ERROR;
 			} else {
 				statusCode = RD_STATUS_OK;
 			}

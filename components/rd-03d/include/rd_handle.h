@@ -6,11 +6,6 @@
  * including UART configurations, FreeRTOS queues, and frame parsing buffers.
  */
 #pragma once
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
-#include "driver/uart.h"
-#include "driver/gpio.h"
 #include "rd-03d_high.h"
 #include <stdint.h>
 

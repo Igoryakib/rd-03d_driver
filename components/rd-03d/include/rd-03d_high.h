@@ -13,7 +13,6 @@
 #include "freertos/queue.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
-#include <string.h>
 #include <stdbool.h>
 
 /**
@@ -25,12 +24,14 @@ typedef enum {
 	RD_STATUS_INITIALIZED,
 	RD_STATUS_READ_ERROR,
 	RD_STATUS_WRITE_ERROR,
-	RD_STATUS_INVALID_PARAMETERS
+	RD_STATUS_INVALID_PARAMETERS,
+	RD_STATUS_CMD_ERROR
 } rd_high_api_status_t;
 
 typedef enum {
-	MODE_SINGLE_TARGTE,
-	MODE_MULTI_TARGET
+	MODE_SINGLE_TARGET = 0,
+	MODE_MULTI_TARGET,
+	RD_MODE_MAX_INVALID
 } rd_high_api_mode_t;
 
 /**
@@ -93,7 +94,7 @@ rd_handle_init_t *createEntity(uart_port_t uart_num, int tx_io_num,
  * @param handle_init Pointer to the radar device handle created by createEntity().
  * @return rd_high_api_status_t RD_STATUS_OK on success, or an error code on failure.
  */
-rd_high_api_status_t rd_init(rd_handle_init_t *handle_init);
+rd_high_api_status_t rd_init(rd_handle_init_t *handle_init, const rd_high_api_mode_t mode);
 
 /**
  * @brief Reads incoming UART data, parses the frame, and dispatches it to the data queue.

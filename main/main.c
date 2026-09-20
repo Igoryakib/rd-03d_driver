@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include "rd-03d_high.h"
 
 #define RADAR_TXD_PIN (GPIO_NUM_17)
@@ -15,7 +14,7 @@ void app_main(void)
 {
 	data_queue = xQueueCreate(10, sizeof(rd_data_t));
 	rd_handle_init_t *rd_handle_init = createEntity(UART_PORT_NUM, RADAR_TXD_PIN, RADAR_RXD_PIN, uart_queue, data_queue);
-	if (RD_STATUS_OK == rd_init(rd_handle_init)) {
+	if (RD_STATUS_OK == rd_init(rd_handle_init, MODE_MULTI_TARGET)) {
 		printf("UART ініціалізовано. Швидкість: 256000 bps. Очікування даних від RD-03D...\n");
 	}
 	rd_data_t radar_data;

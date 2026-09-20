@@ -20,18 +20,17 @@
 #define MODE_SINGLE_ACK_COMMAND_WORD 0x8001
 #define MODE_MULTI_ACK_COMMAND_WORD 0x9001
 
-const uint8_t CMD_ENABLE_CONF[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x04,
-										  0x00, 0xFF, 0x00, 0x01, 0x00,
-										  0x04, 0x03, 0x02, 0x01};
+const uint8_t CMD_ENABLE_CONF[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x04, 0x00, 0xFF,
+								   0x00, 0x01, 0x00, 0x04, 0x03, 0x02, 0x01};
 
 const uint8_t CMD_END_CONF[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x02, 0x00,
-									   0xFE, 0x00, 0x04, 0x03, 0x02, 0x01};
+								0xFE, 0x00, 0x04, 0x03, 0x02, 0x01};
 
 const uint8_t CMD_SINGL_T[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x02, 0x00,
-									  0x80, 0x00, 0x04, 0x03, 0x02, 0x01};
+							   0x80, 0x00, 0x04, 0x03, 0x02, 0x01};
 
 const uint8_t CMD_MULTI_T[] = {0xFD, 0xFC, 0xFB, 0xFA, 0x02, 0x00,
-									  0x90, 0x00, 0x04, 0x03, 0x02, 0x01};
+							   0x90, 0x00, 0x04, 0x03, 0x02, 0x01};
 
 rd_low_api_status_t device_init(rd_handle_init_t *rd_handle) {
 	rd_low_api_status_t statusCode = DEVICE_STATUS_OK;
@@ -136,8 +135,8 @@ rd_low_api_status_t device_read(rd_handle_init_t *rd_handle) {
 
 rd_low_api_status_t device_send_command(rd_handle_init_t *rd_handle,
 										const uint8_t *command,
-										size_t command_length,
 										rd_handle_cmd_t type_command,
+										size_t command_length,
 										size_t cmd_response_length) {
 	rd_low_api_status_t statusCode = DEVICE_STATUS_OK;
 
@@ -161,7 +160,7 @@ rd_low_api_status_t device_send_command(rd_handle_init_t *rd_handle,
 		uint8_t head_position = 24;
 		uint8_t tail_position = 0;
 		for (int8_t j = cmd_response_length - 1, i = 0; i < 4;
-			 head_position -= 8, tail_position+=8, j--, i++) {
+			 head_position -= 8, tail_position += 8, j--, i++) {
 			buf_header_frame |= raw_buffer[i] << head_position;
 			buf_tail_frame |= raw_buffer[j] << tail_position;
 		}
@@ -177,34 +176,25 @@ rd_low_api_status_t device_send_command(rd_handle_init_t *rd_handle,
 			uint16_t cmd_status = (raw_buffer[8] << 8) | raw_buffer[9];
 			switch (type_command) {
 			case CONF_ENABLE:
-				if (CONF_ENABLE_ACK_COMMAND_WORD == cmd_word &&
-					0 == cmd_status) {
-					statusCode = DEVICE_STATUS_OK;
-				} else {
+				if (CONF_ENABLE_ACK_COMMAND_WORD != cmd_word &&
+					0 != cmd_status) {
 					statusCode = DEVICE_STATUS_CMD_ERROR;
 				}
 				break;
 			case CONF_END:
-				if (CONF_END_ACK_COMMAND_WORD == cmd_word &&
-					0 == cmd_status) {
-					statusCode = DEVICE_STATUS_OK;
-				} else {
+				if (CONF_END_ACK_COMMAND_WORD != cmd_word && 0 != cmd_status) {
 					statusCode = DEVICE_STATUS_CMD_ERROR;
 				}
 				break;
 			case MODE_SINGLE:
-				if (MODE_SINGLE_ACK_COMMAND_WORD == cmd_word &&
-					0 == cmd_status) {
-					statusCode = DEVICE_STATUS_OK;
-				} else {
+				if (MODE_SINGLE_ACK_COMMAND_WORD != cmd_word &&
+					0 != cmd_status) {
 					statusCode = DEVICE_STATUS_CMD_ERROR;
 				}
 				break;
 			case MODE_MULTI:
-				if (MODE_MULTI_ACK_COMMAND_WORD == cmd_word &&
-					0 == cmd_status) {
-					statusCode = DEVICE_STATUS_OK;
-				} else {
+				if (MODE_MULTI_ACK_COMMAND_WORD != cmd_word &&
+					0 != cmd_status) {
 					statusCode = DEVICE_STATUS_CMD_ERROR;
 				}
 				break;

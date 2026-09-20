@@ -44,4 +44,4 @@ rd_low_api_status_t device_init(rd_handle_init_t *handle_init);
  */
 rd_low_api_status_t device_read(rd_handle_init_t *rd_handle);
 
-rd_low_api_status_t device_send_command(rd_handle_init_t *rd_handle, const uint8_t *command, size_t command_length, rd_handle_cmd_t type_command, size_t cmd_response_length);
+rd_low_api_status_t device_send_command(rd_handle_init_t *rd_handle, const uint8_t *command, rd_handle_cmd_t type_command, size_t command_length, size_t cmd_response_length);
