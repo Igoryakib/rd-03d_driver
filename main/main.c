@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include "rd-03d_high.h"
 
 #define RADAR_TXD_PIN (GPIO_NUM_17)
@@ -9,29 +8,32 @@
 
 
 static QueueHandle_t uart_queue;
+static QueueHandle_t data_queue;
 
 void app_main(void)
 {
-	const rd_hadnle_init_t rd_handle_init = {
-		.uart_num = UART_PORT_NUM,
-		.tx_io_num = RADAR_TXD_PIN,
-		.rx_io_num = RADAR_RXD_PIN,
-		.uart_queue = &uart_queue 
-	};
-	if (RD_STATUS_OK == rd_init(&rd_handle_init)) {
+	data_queue = xQueueCreate(10, sizeof(rd_data_t));
+	rd_handle_init_t *rd_handle_init = createEntity(UART_PORT_NUM, RADAR_TXD_PIN, RADAR_RXD_PIN, uart_queue, data_queue);
+	if (RD_STATUS_OK == rd_init(rd_handle_init, MODE_MULTI_TARGET)) {
 		printf("UART ініціалізовано. Швидкість: 256000 bps. Очікування даних від RD-03D...\n");
 	}
-    uint8_t data[120];
+	rd_data_t radar_data;
+	
     while (true) {
-        int length = uart_read_bytes(UART_PORT_NUM, data, sizeof(data), pdMS_TO_TICKS(20));
+		if (RD_STATUS_OK == rd_read(rd_handle_init) && xQueueReceive(data_queue, &radar_data, portMAX_DELAY) == pdTRUE) {
+			printf("--- Новий кадр! Активних цілей: %d ---\n", radar_data.active_count);
 
-        if (length > 0) {
-            printf("Отримано %d байт: ", length);
-            for (int i = 0; i < length; i++) {
-                printf("%02X ", data[i]);
+            for (int i = 0; i < 3; i++) {
+                if (radar_data.targets[i].id != 0) {
+                    printf("Ціль %d -> X: %d мм | Y: %d мм | Швидкість: %d см/с | Відстань: %d мм\n",
+                           radar_data.targets[i].id,
+                           radar_data.targets[i].x,
+                           radar_data.targets[i].y,
+                           radar_data.targets[i].velocity,
+                           radar_data.targets[i].distance);
+                }
             }
-            printf("\n");
-        }
+		}
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
